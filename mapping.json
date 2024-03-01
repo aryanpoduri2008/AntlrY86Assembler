@@ -1,0 +1,9 @@
+{
+  "instructions": {
+    "rrmov": "20"
+  },
+  "registers": {
+    "%esp": "4",
+    "%ebp": "5"
+  }
+}
