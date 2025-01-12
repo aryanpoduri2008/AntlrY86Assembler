@@ -10,6 +10,15 @@ import org.json.simple.parser.ParseException;
 
 
 public class main {
+
+    /*
+    * Executes and creates machine code line for the mrmovl instruction
+    *
+    * @param codeLine: codeline from the input y86 sectioned into instruction, register, etc.
+    * @param registers: mapping of registers to their corresponding machine code
+    * @param pos: current position
+    * @return: machine code line for mrmovl instruction
+    * */
     public static String mrmovl(ParseTree codeLine, JSONObject registers, int pos) {
         if (codeLine.getChildCount() == 6) {
             String rB = codeLine.getChild(2).toString().strip();
@@ -25,6 +34,14 @@ public class main {
         }
     }
 
+    /*
+    * Executes and creates machine code line for the rmmovl instruction
+    *
+    * @param codeLine: codeline from the input y86 sectioned into instruction, register, etc.
+    * @param registers: mapping of registers to their corresponding machine code
+    * @param pos: current position
+    * @return: machine code line for rmmovl instruction
+    * */
     public static String rmmovl(ParseTree codeLine, JSONObject registers, int pos) {
         if (codeLine.getChildCount() == 5) {
             String rA = codeLine.getChild(1).toString().strip();
@@ -40,6 +57,12 @@ public class main {
         }
     }
 
+    /*
+    * This function turns an integer into a hexstring in little endian format
+    *
+    * @param integer: input number in decimal format or hexadecimal format
+    * @return: a hexadecimal formatted integer
+    * */
     public static String littleEndian(String integer) {
         if (!integer.startsWith("0x"))
             integer = Integer.toHexString(Integer.parseInt(integer));
@@ -60,6 +83,15 @@ public class main {
         return newInteger.toString();
     }
 
+    /*
+    * This function generates the machine code, line-by-line, and writes it to output.txt
+    *
+    * @param parseTree: full parsetree of the y86 assembly input split into registers, values, parameters, instructions
+    * @param machineCodeMapping: map from mapping.json that contains register and instruction correspondents and
+    * position increments
+    * @param labels: sequential labels/positions for each line in machine code
+    * @return: None
+    * */
     public static void generateMachineCode(y86Parser.ProgramContext parseTree, JSONObject machineCodeMapping, HashMap<String, String> labels) {
         List<ParseTree> codeLines = parseTree.children;
         int pos = 0;
@@ -145,11 +177,22 @@ public class main {
         }
     }
 
+    /*
+    * @return: the JSONObject for the map from mapping.json
+    * */
     public static JSONObject getMachineCodeMapping() throws IOException, ParseException {
         Object object = new JSONParser().parse(new FileReader("mapping.json"));
         return (JSONObject) object;
     }
 
+    /*
+    * Using the position increments in the machine code mapping and the instructions from the Antlr parse tree, the
+    * positions for each code line are generated.
+    * @param parseTree: full parsetree of the y86 assembly input split into registers, values, parameters, instructions
+    * @param machineCodeMapping: map from mapping.json that contains register and instruction correspondents and
+    * position increments
+    * @return: sequential labels/positions for each line in machine code
+    * */
     public static HashMap<String, String> getLabels(y86Parser.ProgramContext parseTree, JSONObject machineCodeMapping) {
         HashMap<String, String> labels = new HashMap<>();
 
@@ -181,26 +224,18 @@ public class main {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-//        String inputfile = args[0];
-//        parseTree.children.get(0).children.get(0).children.get(0).toString()
-//
-//        Scanner scanner = new Scanner(new File(inputfile));
-//
-//        while(scanner.hasNext()) {
-//            System.out.println(scanner.nextLine());
-//        }
-//
-//        scanner.close();
 
         CharStream input = CharStreams.fromFileName("test.txt");
         y86Lexer lexer = new y86Lexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         y86Parser parser = new y86Parser(tokens);
 
+        // Use Antlr grammar to parse the y86 assembly code into instructions, registers, paramters, values, etc.
         y86Parser.ProgramContext parseTree = parser.program();
 
         JSONObject machineCodeMapping = getMachineCodeMapping();
 
+        // Get position labels for machine code
         HashMap<String, String> labels = getLabels(parseTree, machineCodeMapping);
 
         generateMachineCode(parseTree, machineCodeMapping, labels);
