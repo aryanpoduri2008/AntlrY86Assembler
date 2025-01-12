@@ -1,6 +1,6 @@
 # AntlrY86Assembler
 
-This project accurately transforms the y86 assembly code into machine code, just like a y86 assembler.
+This project accurately transforms the y86 assembly code into machine code, just like a [y86 assembler](https://esolangs.org/wiki/Y86).
 
 Using Antlr to create a y86 grammar object, the program can accurately split the .txt file into the instructions, registers, and parameters. This is necessary as each instruction has different formats and validity.
 
